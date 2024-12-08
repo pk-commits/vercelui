@@ -1,0 +1,390 @@
+import React, { useState } from 'react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Upload, File, FileText, Send, X } from 'lucide-react';
+import { 
+  Select, 
+  SelectContent, 
+  SelectItem, 
+  SelectTrigger, 
+  SelectValue 
+} from '@/components/ui/select';
+
+// Document Upload Component
+const DocumentUploader = ({ onFileUpload }) => {
+  const [uploadedFile, setUploadedFile] = useState(null);
+
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file) {
+      setUploadedFile(file);
+      onFileUpload(file);
+    }
+  };
+
+  const clearFile = () => {
+    setUploadedFile(null);
+    onFileUpload(null);
+  };
+
+  return (
+    <Card className="mb-4">
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <Upload className="mr-2" /> Document Upload
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="flex items-center space-x-4">
+          <Input 
+            type="file" 
+            accept=".pdf,.docx,.txt"
+            onChange={handleFileChange}
+            className="flex-grow"
+          />
+          {uploadedFile && (
+            <div className="flex items-center space-x-2">
+              <File className="text-blue-500" />
+              <span className="truncate max-w-[200px]">{uploadedFile.name}</span>
+              <Button 
+                variant="ghost" 
+                size="icon" 
+                onClick={clearFile}
+                className="text-red-500"
+              >
+                <X className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
+        </div>
+        {uploadedFile && (
+          <p className="text-sm text-gray-500 mt-2">
+            Uploaded: {uploadedFile.name} ({Math.round(uploadedFile.size / 1024)} KB)
+          </p>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+// RFP Response Generator Component
+const RFPResponseGenerator = ({ uploadedFile }) => {
+  // State for various form inputs
+  const [projectDetails, setProjectDetails] = useState({
+    projectName: '',
+    projectType: '',
+    selectionCriteria: '',
+  });
+
+  const [authorDetails, setAuthorDetails] = useState({
+    name: '',
+    title: '',
+    department: '',
+    contactInfo: '',
+  });
+
+  const [companyOverview, setCompanyOverview] = useState({
+    companyName: '',
+    founded: '',
+    industries: '',
+    keyStrengths: '',
+  });
+
+  const [businessInformation, setBusinessInformation] = useState({
+    businessModel: '',
+    revenue: '',
+    employees: '',
+    globalPresence: '',
+  });
+
+  const [rfpContext, setRfpContext] = useState('');
+  const [generatedResponse, setGeneratedResponse] = useState('');
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Project Type options
+  const projectTypes = [
+    'Technology Implementation',
+    'Consulting Services',
+    'Software Development',
+    'Infrastructure',
+    'Digital Transformation',
+    'Other'
+  ];
+
+  const generateRFPResponse = async () => {
+    setIsLoading(true);
+    try {
+      // Generate a comprehensive RFP response
+      const mockResponse = `RFP RESPONSE DOCUMENT
+
+1. PROJECT SELECTION
+Project Name: ${projectDetails.projectName}
+Project Type: ${projectDetails.projectType}
+Selection Criteria: ${projectDetails.selectionCriteria}
+
+2. AUTHOR INFORMATION
+Name: ${authorDetails.name}
+Title: ${authorDetails.title}
+Department: ${authorDetails.department}
+Contact Information: ${authorDetails.contactInfo}
+
+3. COMPANY OVERVIEW
+Company Name: ${companyOverview.companyName}
+Founded: ${companyOverview.founded}
+Key Industries: ${companyOverview.industries}
+Core Strengths: ${companyOverview.keyStrengths}
+
+4. BUSINESS INFORMATION
+Business Model: ${businessInformation.businessModel}
+Annual Revenue: ${businessInformation.revenue}
+Number of Employees: ${businessInformation.employees}
+Global Presence: ${businessInformation.globalPresence}
+
+5. ADDITIONAL RFP CONTEXT
+${rfpContext}
+
+6. RESPONSE STRATEGY
+Based on the provided information and the uploaded document ${uploadedFile ? `"${uploadedFile.name}"` : ''}, 
+we propose a tailored solution that addresses all key requirements and demonstrates our 
+comprehensive capabilities in meeting the project objectives.
+`;
+      
+      setGeneratedResponse(mockResponse);
+    } catch (error) {
+      console.error('Error generating response:', error);
+      setGeneratedResponse('Failed to generate response. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Render method with multiple input sections
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle className="flex items-center">
+          <FileText className="mr-2" /> RFP Response Generation
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {/* PROJECT SELECTION SECTION */}
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">1. Project Selection</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              placeholder="Project Name"
+              value={projectDetails.projectName}
+              onChange={(e) => setProjectDetails(prev => ({
+                ...prev, 
+                projectName: e.target.value
+              }))}
+            />
+            <Select
+              value={projectDetails.projectType}
+              onValueChange={(value) => setProjectDetails(prev => ({
+                ...prev, 
+                projectType: value
+              }))}
+            >
+              <SelectTrigger>
+                <SelectValue placeholder="Select Project Type" />
+              </SelectTrigger>
+              <SelectContent>
+                {projectTypes.map((type) => (
+                  <SelectItem key={type} value={type}>
+                    {type}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+            <Textarea 
+              placeholder="Selection Criteria"
+              className="col-span-2"
+              value={projectDetails.selectionCriteria}
+              onChange={(e) => setProjectDetails(prev => ({
+                ...prev, 
+                selectionCriteria: e.target.value
+              }))}
+            />
+          </div>
+        </div>
+
+        {/* AUTHOR DETAILS SECTION */}
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">2. Author Details</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              placeholder="Name"
+              value={authorDetails.name}
+              onChange={(e) => setAuthorDetails(prev => ({
+                ...prev, 
+                name: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Title"
+              value={authorDetails.title}
+              onChange={(e) => setAuthorDetails(prev => ({
+                ...prev, 
+                title: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Department"
+              value={authorDetails.department}
+              onChange={(e) => setAuthorDetails(prev => ({
+                ...prev, 
+                department: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Contact Information"
+              value={authorDetails.contactInfo}
+              onChange={(e) => setAuthorDetails(prev => ({
+                ...prev, 
+                contactInfo: e.target.value
+              }))}
+            />
+          </div>
+        </div>
+
+        {/* COMPANY OVERVIEW SECTION */}
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">3. Company Overview</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              placeholder="Company Name"
+              value={companyOverview.companyName}
+              onChange={(e) => setCompanyOverview(prev => ({
+                ...prev, 
+                companyName: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Founded Year"
+              value={companyOverview.founded}
+              onChange={(e) => setCompanyOverview(prev => ({
+                ...prev, 
+                founded: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Key Industries"
+              className="col-span-1"
+              value={companyOverview.industries}
+              onChange={(e) => setCompanyOverview(prev => ({
+                ...prev, 
+                industries: e.target.value
+              }))}
+            />
+            <Textarea 
+              placeholder="Key Strengths"
+              className="col-span-2"
+              value={companyOverview.keyStrengths}
+              onChange={(e) => setCompanyOverview(prev => ({
+                ...prev, 
+                keyStrengths: e.target.value
+              }))}
+            />
+          </div>
+        </div>
+
+        {/* BUSINESS INFORMATION SECTION */}
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">4. Business Information</h3>
+          <div className="grid grid-cols-2 gap-4">
+            <Input 
+              placeholder="Business Model"
+              value={businessInformation.businessModel}
+              onChange={(e) => setBusinessInformation(prev => ({
+                ...prev, 
+                businessModel: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Annual Revenue"
+              value={businessInformation.revenue}
+              onChange={(e) => setBusinessInformation(prev => ({
+                ...prev, 
+                revenue: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Number of Employees"
+              value={businessInformation.employees}
+              onChange={(e) => setBusinessInformation(prev => ({
+                ...prev, 
+                employees: e.target.value
+              }))}
+            />
+            <Input 
+              placeholder="Global Presence"
+              value={businessInformation.globalPresence}
+              onChange={(e) => setBusinessInformation(prev => ({
+                ...prev, 
+                globalPresence: e.target.value
+              }))}
+            />
+          </div>
+        </div>
+
+        {/* ADDITIONAL CONTEXT */}
+        <div className="mb-4">
+          <h3 className="font-semibold mb-2">5. Additional RFP Context</h3>
+          <Textarea 
+            placeholder="Enter any additional context for the RFP response"
+            value={rfpContext}
+            onChange={(e) => setRfpContext(e.target.value)}
+            className="w-full"
+            rows={4}
+          />
+        </div>
+
+        {/* Generate Response Button */}
+        <Button 
+          onClick={generateRFPResponse}
+          disabled={!uploadedFile || isLoading}
+          className="w-full"
+        >
+          {isLoading ? 'Generating...' : 'Generate RFP Response'}
+          <Send className="ml-2" />
+        </Button>
+
+        {/* Generated Response Display */}
+        {generatedResponse && (
+          <div className="mt-4 p-4 bg-gray-50 rounded-lg max-h-[400px] overflow-y-auto">
+            <h3 className="font-bold mb-2">Generated Response:</h3>
+            <pre className="whitespace-pre-wrap">{generatedResponse}</pre>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  );
+};
+
+// Main Application Component
+const RFPResponseApp = () => {
+  const [uploadedFile, setUploadedFile] = useState(null);
+
+  const handleFileUpload = (file) => {
+    setUploadedFile(file);
+  };
+
+  return (
+    <div className="container mx-auto p-6 max-w-4xl">
+      <h1 className="text-2xl font-bold mb-6 text-center">
+        RFP Response AI Assistant
+      </h1>
+      
+      {/* Document Upload Component */}
+      <DocumentUploader onFileUpload={handleFileUpload} />
+
+      {/* RFP Response Generation Component */}
+      <RFPResponseGenerator uploadedFile={uploadedFile} />
+    </div>
+  );
+};
+
+export default RFPResponseApp;
